@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberbullying in Children: Data & Policy</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">Cyberbullying in Children: <span class="highlight">Data & Policy</span></div>
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="visualizations">Visualizations</button>
+                <button class="tab-btn" data-tab="data-sources">Data Sources</button>
+                <button class="tab-btn" data-tab="policy-brief">Policy Brief</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        
+        <!-- VISUALIZATIONS TAB -->
+        <section id="visualizations" class="tab-content active">
+            <header class="hero">
+                <h1>The Silent Crisis: Trends in Digital Harassment</h1>
+                <p>Analyzing the prevalence and impact of cyberbullying among adolescents (ages 10-18) over the last decade.</p>
+                
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <h3>avg. prevalence</h3>
+                        <div class="kpi-value">36.5%</div>
+                        <div class="kpi-sub">Lifetime experience</div>
+                    </div>
+                    <div class="kpi-card">
+                        <h3>reporting rate</h3>
+                        <div class="kpi-value">42%</div>
+                        <div class="kpi-sub">Reported to adult</div>
+                    </div>
+                    <div class="kpi-card">
+                        <h3>peak age</h3>
+                        <div class="kpi-value">14-15</div>
+                        <div class="kpi-sub">Middle school years</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="controls-bar">
+                <label for="metric-select">Select Metric:</label>
+                <select id="metric-select">
+                    <option value="prevalence">Prevalence Rate</option>
+                    <option value="reporting">Reporting Rate</option>
+                </select>
+                <span class="divider">|</span>
+                <span class="control-hint">Visualizing annual trends and age demographics</span>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card main-chart">
+                    <div class="chart-header">
+                        <h2>Trends Over Time (2015-2024)</h2>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card secondary-chart">
+                    <div class="chart-header">
+                        <h2>By Age Group</h2>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="ageChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- DATA SOURCES TAB -->
+        <section id="data-sources" class="tab-content">
+            <header class="section-header">
+                <h2>Data Sources & Methodology</h2>
+                <p>Transparency is key to understanding the scope and limitations of current cyberbullying research.</p>
+            </header>
+
+            <div class="cards-grid">
+                <!-- Source 1 -->
+                <div class="info-card">
+                    <div class="card-badge">Primary Source</div>
+                    <h3>Cyberbullying Research Center (CRC)</h3>
+                    <p class="source-desc">Annual representative surveys of U.S. middle and high school students.</p>
+                    <ul class="data-details">
+                        <li><strong>Fields:</strong> Victimization %, Offending %, Platform breakdown</li>
+                        <li><strong>Sample Size:</strong> ~5,000 per year</li>
+                        <li><strong>Limitations:</strong> Self-reported data may introduce bias.</li>
+                    </ul>
+                    <a href="#" class="ext-link">Visit Dataset &rarr;</a>
+                </div>
+
+                <!-- Source 2 -->
+                <div class="info-card">
+                    <h3>National Crime Victimization Survey</h3>
+                    <p class="source-desc">Bureau of Justice Statistics supplement on School Crime and Safety.</p>
+                    <ul class="data-details">
+                        <li><strong>Fields:</strong> Electronic bullying reporting, Frequency</li>
+                        <li><strong>Sample Size:</strong> ~9,000 students annually</li>
+                        <li><strong>Limitations:</strong> Stricter definition of "bullying" yields lower stats.</li>
+                    </ul>
+                    <a href="#" class="ext-link">Visit Dataset &rarr;</a>
+                </div>
+
+                <!-- Source 3 -->
+                <div class="info-card">
+                    <h3>Pew Research Center</h3>
+                    <p class="source-desc">Teens and Technology reports focusing on online harassment.</p>
+                    <ul class="data-details">
+                        <li><strong>Fields:</strong> Platform usage, Type of harassment (name-calling, threats)</li>
+                        <li><strong>Sample Size:</strong> ~1,500 teens</li>
+                        <li><strong>Limitations:</strong> Irregular survey intervals (not annual).</li>
+                    </ul>
+                    <a href="#" class="ext-link">Visit Dataset &rarr;</a>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- POLICY BRIEF TAB -->
+        <section id="policy-brief" class="tab-content">
+            <div class="brief-container">
+                <article class="policy-doc">
+                    <header class="doc-header">
+                        <div class="doc-meta">POLICY BRIEF &bull; JANUARY 2026</div>
+                        <h1>Combating Digital Harassment: A Multi-Stakeholder Approach</h1>
+                        <p class="lead">Evidence-based recommendations for reducing cyberbullying incidents in K-12 educational environments.</p>
+                    </header>
+
+                    <div class="doc-section">
+                        <h2>Executive Summary</h2>
+                        <p>Cyberbullying remains a persistent threat to adolescent mental health, with prevalence rates fluctuating between 30-40% over the last decade. Despite increased awareness, reporting rates remain stagnantly low (below 50%). This brief argues for shifts from punitive zeros-tolerance policies to restorative justice approaches and mandatory digital citizenship curricula.</p>
+                    </div>
+
+                    <div class="doc-section">
+                        <h2>Key Findings</h2>
+                        <ul>
+                            <li><strong>Prevalence is consistent:</strong> Despite platform changes (e.g., rise of TikTok), victimization rates have not significantly dropped.</li>
+                            <li><strong>The "Middle School Peak":</strong> Data confirms that students aged 13-15 are at the highest risk, coinciding with peak social media adoption.</li>
+                            <li><strong>Reporting Gap:</strong> Less than half of victims report incidents to an adult due to fear of device confiscation or retaliation.</li>
+                        </ul>
+                    </div>
+
+                    <div class="doc-section">
+                        <h2>Recommendations</h2>
+                        <div class="recommendation-block">
+                            <h3>For Schools</h3>
+                            <p>Implement anonymous reporting systems that do not automatically trigger disciplinary action, encouraging bystander intervention.</p>
+                        </div>
+                        <div class="recommendation-block">
+                            <h3>For Policymakers</h3>
+                            <p>Mandate social & emotional learning (SEL) components in digital literacy standards. Fund research into algorithmic amplification of conflict.</p>
+                        </div>
+                        <div class="recommendation-block">
+                            <h3>For Platforms</h3>
+                            <p>Improve "nudging" features that detect aggressive language before posting. Simplify reporting flows for minors.</p>
+                        </div>
+                    </div>
+
+                    <div class="doc-section">
+                        <h2>Limitations</h2>
+                        <p>This analysis relies on aggregated survey data. Variations in how "bullying" is defined across studies (e.g., single incident vs. repeated behavior) complicates direct YoY comparisons.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        <p>Cyberbullying Visualization Tool &copy; 2026. Built for public awareness.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
