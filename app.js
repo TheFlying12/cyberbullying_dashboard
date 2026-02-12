@@ -337,6 +337,7 @@ ${name}`;
         let lastFilteredRows = [];
         const pageSize = 60;
         let currentVisibleCount = pageSize;
+        let pendingZipLookup = '';
 
         const populateStateFilter = (rows) => {
             const stateOptions = Array.from(new Set(rows.map(row => row.state))).sort();
@@ -447,10 +448,23 @@ ${name}`;
             return true;
         };
 
+        const getNormalizedZip = () => {
+            const digitsOnly = zipFilter.value.replace(/\D/g, '');
+            if (digitsOnly.length < 5) return '';
+            return digitsOnly.slice(0, 5);
+        };
+
         const applyZipLookup = async () => {
-            const zip = zipFilter.value.trim();
-            if (!/^\d{5}$/.test(zip)) {
-                directoryStatus.textContent = 'Enter a valid 5-digit ZIP code.';
+            const zip = getNormalizedZip();
+            if (!zip) {
+                directoryStatus.textContent = 'Enter a valid ZIP code (e.g., 10001 or 10001-1234).';
+                return;
+            }
+            zipFilter.value = zip;
+
+            if (!directoryData.length) {
+                pendingZipLookup = zip;
+                directoryStatus.textContent = `ZIP ${zip} saved. Applying once directory data finishes loading...`;
                 return;
             }
 
@@ -564,6 +578,11 @@ ${name}`;
                 populateStateFilter(directoryData);
                 applyFilters();
                 directoryStatus.textContent = `Loaded ${directoryData.length} members from the national Congress dataset.`;
+                if (pendingZipLookup) {
+                    zipFilter.value = pendingZipLookup;
+                    pendingZipLookup = '';
+                    applyZipLookup();
+                }
             } catch (_error) {
                 directoryCards.innerHTML = '<div class="directory-empty">Unable to load live directory data right now.</div>';
                 directoryStatus.textContent = 'National directory failed to load. Try Refresh Data in a moment.';
