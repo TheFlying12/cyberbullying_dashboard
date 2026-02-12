@@ -254,6 +254,7 @@ function initTakeAction() {
     const statDem = document.getElementById('stat-dem');
     const statGop = document.getElementById('stat-gop');
     const statOther = document.getElementById('stat-other');
+    const loadMoreRepsBtn = document.getElementById('load-more-reps-btn');
 
     const senderName = document.getElementById('sender-name');
     const senderCity = document.getElementById('sender-city');
@@ -262,6 +263,54 @@ function initTakeAction() {
     const generateTemplateBtn = document.getElementById('generate-template-btn');
     const copyTemplateBtn = document.getElementById('copy-template-btn');
     const copyStatus = document.getElementById('copy-status');
+
+    if (templateBox && generateTemplateBtn && copyTemplateBtn && copyStatus) {
+        const renderTemplate = () => {
+            const name = senderName?.value.trim() || '[Your Name]';
+            const city = senderCity?.value.trim() || '_______';
+            const state = senderState?.value.trim().toUpperCase();
+            const location = state ? `${city}, ${state}` : city;
+
+            templateBox.value = `My name is ${name} and I live in ${location}.
+
+I hope this letter finds you well. I am writing to urge you to support stronger protections for children and teenagers online, particularly on social media.
+
+The U.S. Surgeon General has warned that social media poses a serious risk to youth mental health. I want children in my community to grow up safe and healthy, without being targeted by addictive platform designs that prioritize profit over well-being. Too many young people are experiencing anxiety, depression, cyberbullying, and sleep disruption as a result of algorithm-driven “infinite scroll” feeds.
+
+For this reason, I urge you to support legislation like the SAFE for Kids Act and related children’s online safety measures, including:
+
+Limiting addictive, algorithm-driven feeds for users under 18 without parental consent
+
+Requiring age verification and parental approval for these features
+
+Restricting late-night notifications between 12:00 a.m. and 6:00 a.m.
+
+Protecting children’s privacy by limiting the collection and use of their personal data
+
+By taking these steps, we can help create a safer digital environment for families and put children’s health and privacy first.
+
+Thank you for your time and consideration. I appreciate your leadership on this important issue.
+
+Sincerely,
+${name}`;
+        };
+
+        generateTemplateBtn.addEventListener('click', () => {
+            renderTemplate();
+            copyStatus.textContent = 'Template refreshed.';
+        });
+
+        copyTemplateBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(templateBox.value);
+                copyStatus.textContent = 'Template copied to clipboard.';
+            } catch (_error) {
+                copyStatus.textContent = 'Copy failed. Please select all text and copy manually.';
+            }
+        });
+
+        renderTemplate();
+    }
 
     const hasDirectoryElements = repSearch
         && chamberFilter
@@ -275,9 +324,13 @@ function initTakeAction() {
         && statHouse
         && statDem
         && statGop
-        && statOther;
+        && statOther
+        && loadMoreRepsBtn;
     if (hasDirectoryElements) {
         let directoryData = [];
+        let lastFilteredRows = [];
+        const pageSize = 60;
+        let currentVisibleCount = pageSize;
 
         const populateStateFilter = (rows) => {
             const stateOptions = Array.from(new Set(rows.map(row => row.state))).sort();
@@ -308,14 +361,17 @@ function initTakeAction() {
         };
 
         const renderDirectory = (rows) => {
+            lastFilteredRows = rows;
             updateStats(rows);
             if (!rows.length) {
                 directoryCards.innerHTML = '<div class="directory-empty">No members match the current filters.</div>';
                 directorySummary.textContent = 'Showing 0 results.';
+                loadMoreRepsBtn.style.display = 'none';
                 return;
             }
 
-            directoryCards.innerHTML = rows.map(row => {
+            const visibleRows = rows.slice(0, currentVisibleCount);
+            directoryCards.innerHTML = visibleRows.map(row => {
                 const chamberClass = row.roleType === 'sen' ? 'badge-senate' : 'badge-house';
                 const districtValue = row.roleType === 'rep' ? row.district : '-';
                 const websiteHref = formatPublicUrl(row.website);
@@ -347,10 +403,12 @@ function initTakeAction() {
 
             const senateCount = rows.filter(row => row.chamber === 'Senate').length;
             const houseCount = rows.filter(row => row.chamber === 'House').length;
-            directorySummary.textContent = `Showing ${rows.length} members (${senateCount} Senate, ${houseCount} House).`;
+            directorySummary.textContent = `Showing ${visibleRows.length} of ${rows.length} members (${senateCount} Senate, ${houseCount} House).`;
+            loadMoreRepsBtn.style.display = visibleRows.length < rows.length ? 'inline-block' : 'none';
         };
 
         const applyFilters = () => {
+            currentVisibleCount = pageSize;
             const query = repSearch.value.trim().toLowerCase();
             const chamber = chamberFilter.value;
             const state = stateFilter.value;
@@ -397,6 +455,7 @@ function initTakeAction() {
             directoryStatus.textContent = 'Loading national congressional roster...';
             directorySummary.textContent = '';
             directoryCards.innerHTML = '<div class="directory-empty">Loading...</div>';
+            loadMoreRepsBtn.style.display = 'none';
 
             try {
                 const response = await fetch('https://unitedstates.github.io/congress-legislators/legislators-current.json', { cache: 'no-store' });
@@ -425,57 +484,13 @@ function initTakeAction() {
         chamberFilter.addEventListener('change', applyFilters);
         stateFilter.addEventListener('change', applyFilters);
         refreshDirectoryBtn.addEventListener('click', loadNationalDirectory);
+        loadMoreRepsBtn.addEventListener('click', () => {
+            currentVisibleCount += pageSize;
+            renderDirectory(lastFilteredRows);
+        });
 
         loadNationalDirectory();
     }
-
-    if (!templateBox || !generateTemplateBtn || !copyTemplateBtn || !copyStatus) return;
-
-    const renderTemplate = () => {
-        const name = senderName?.value.trim() || '[Your Name]';
-        const city = senderCity?.value.trim() || '_______';
-        const state = senderState?.value.trim().toUpperCase();
-        const location = state ? `${city}, ${state}` : city;
-
-        templateBox.value = `My name is ${name} and I live in ${location}.
-
-I hope this letter finds you well. I am writing to urge you to support stronger protections for children and teenagers online, particularly on social media.
-
-The U.S. Surgeon General has warned that social media poses a serious risk to youth mental health. I want children in my community to grow up safe and healthy, without being targeted by addictive platform designs that prioritize profit over well-being. Too many young people are experiencing anxiety, depression, cyberbullying, and sleep disruption as a result of algorithm-driven “infinite scroll” feeds.
-
-For this reason, I urge you to support legislation like the SAFE for Kids Act and related children’s online safety measures, including:
-
-Limiting addictive, algorithm-driven feeds for users under 18 without parental consent
-
-Requiring age verification and parental approval for these features
-
-Restricting late-night notifications between 12:00 a.m. and 6:00 a.m.
-
-Protecting children’s privacy by limiting the collection and use of their personal data
-
-By taking these steps, we can help create a safer digital environment for families and put children’s health and privacy first.
-
-Thank you for your time and consideration. I appreciate your leadership on this important issue.
-
-Sincerely,
-${name}`;
-    };
-
-    generateTemplateBtn.addEventListener('click', () => {
-        renderTemplate();
-        copyStatus.textContent = 'Template refreshed.';
-    });
-
-    copyTemplateBtn.addEventListener('click', async () => {
-        try {
-            await navigator.clipboard.writeText(templateBox.value);
-            copyStatus.textContent = 'Template copied to clipboard.';
-        } catch (_error) {
-            copyStatus.textContent = 'Copy failed. Please select all text and copy manually.';
-        }
-    });
-
-    renderTemplate();
 }
 
 function escapeHtml(value) {

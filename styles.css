@@ -574,9 +574,15 @@ textarea {
   grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
   gap: 0.8rem;
   margin-top: 0.4rem;
-  max-height: 560px;
+  max-height: 520px;
   overflow-y: auto;
   padding-right: 0.2rem;
+}
+
+.directory-footer {
+  margin-top: 0.7rem;
+  display: flex;
+  justify-content: center;
 }
 
 .directory-empty {
