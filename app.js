@@ -318,7 +318,6 @@ ${name}`;
     const hasDirectoryElements = repSearch
         && zipFilter
         && applyZipBtn
-        && useLocationBtn
         && chamberFilter
         && stateFilter
         && refreshDirectoryBtn
@@ -330,8 +329,7 @@ ${name}`;
         && statHouse
         && statDem
         && statGop
-        && statOther
-        && loadMoreRepsBtn;
+        && statOther;
     if (hasDirectoryElements) {
         let directoryData = [];
         let lastFilteredRows = [];
@@ -373,7 +371,7 @@ ${name}`;
             if (!rows.length) {
                 directoryCards.innerHTML = '<div class="directory-empty">No members match the current filters.</div>';
                 directorySummary.textContent = 'Showing 0 results.';
-                loadMoreRepsBtn.style.display = 'none';
+                if (loadMoreRepsBtn) loadMoreRepsBtn.style.display = 'none';
                 return;
             }
 
@@ -411,7 +409,9 @@ ${name}`;
             const senateCount = rows.filter(row => row.chamber === 'Senate').length;
             const houseCount = rows.filter(row => row.chamber === 'House').length;
             directorySummary.textContent = `Showing ${visibleRows.length} of ${rows.length} members (${senateCount} Senate, ${houseCount} House).`;
-            loadMoreRepsBtn.style.display = visibleRows.length < rows.length ? 'inline-block' : 'none';
+            if (loadMoreRepsBtn) {
+                loadMoreRepsBtn.style.display = visibleRows.length < rows.length ? 'inline-block' : 'none';
+            }
         };
 
         const applyFilters = () => {
@@ -470,19 +470,14 @@ ${name}`;
 
             directoryStatus.textContent = `Looking up ZIP ${zip}...`;
             try {
-                const response = await fetch(`https://api.zippopotam.us/us/${zip}`, { cache: 'no-store' });
-                if (!response.ok) {
-                    throw new Error(`ZIP lookup failed (${response.status})`);
-                }
-                const payload = await response.json();
-                const stateAbbr = payload?.places?.[0]?.['state abbreviation'];
+                const stateAbbr = await resolveZipToState(zip);
                 if (!stateAbbr) {
                     throw new Error('State not found for ZIP');
                 }
 
                 applyStateSelection(stateAbbr, `ZIP ${zip}`);
             } catch (_error) {
-                directoryStatus.textContent = `Could not resolve ZIP ${zip} right now. You can still filter by state manually.`;
+                directoryStatus.textContent = `Could not resolve ZIP ${zip}. Try state filter or another ZIP.`;
             }
         };
 
@@ -561,7 +556,7 @@ ${name}`;
             directoryStatus.textContent = 'Loading national congressional roster...';
             directorySummary.textContent = '';
             directoryCards.innerHTML = '<div class="directory-empty">Loading...</div>';
-            loadMoreRepsBtn.style.display = 'none';
+            if (loadMoreRepsBtn) loadMoreRepsBtn.style.display = 'none';
 
             try {
                 const response = await fetch('https://unitedstates.github.io/congress-legislators/legislators-current.json', { cache: 'no-store' });
@@ -593,7 +588,6 @@ ${name}`;
 
         repSearch.addEventListener('input', applyFilters);
         applyZipBtn.addEventListener('click', applyZipLookup);
-        useLocationBtn.addEventListener('click', useMyLocation);
         zipFilter.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault();
@@ -603,10 +597,15 @@ ${name}`;
         chamberFilter.addEventListener('change', applyFilters);
         stateFilter.addEventListener('change', applyFilters);
         refreshDirectoryBtn.addEventListener('click', loadNationalDirectory);
-        loadMoreRepsBtn.addEventListener('click', () => {
-            currentVisibleCount += pageSize;
-            renderDirectory(lastFilteredRows);
-        });
+        if (loadMoreRepsBtn) {
+            loadMoreRepsBtn.addEventListener('click', () => {
+                currentVisibleCount += pageSize;
+                renderDirectory(lastFilteredRows);
+            });
+        }
+        if (useLocationBtn) {
+            useLocationBtn.addEventListener('click', useMyLocation);
+        }
 
         loadNationalDirectory();
     }
@@ -628,6 +627,49 @@ function formatPublicUrl(value) {
     if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('mailto:')) return trimmed;
     return `https://${trimmed}`;
 }
+
+async function resolveZipToState(zip) {
+    // Primary lookup
+    try {
+        const response = await fetch(`https://api.zippopotam.us/us/${zip}`, { cache: 'no-store' });
+        if (response.ok) {
+            const payload = await response.json();
+            const stateAbbr = payload?.places?.[0]?.['state abbreviation'];
+            if (typeof stateAbbr === 'string' && /^[A-Z]{2}$/.test(stateAbbr)) {
+                return stateAbbr;
+            }
+        }
+    } catch (_error) {
+        // Continue to fallback.
+    }
+
+    // Fallback lookup
+    try {
+        const nominatim = `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(zip)}&country=us&format=jsonv2&addressdetails=1&limit=1`;
+        const response = await fetch(nominatim, { cache: 'no-store' });
+        if (!response.ok) return '';
+        const payload = await response.json();
+        const stateName = payload?.[0]?.address?.state;
+        if (!stateName) return '';
+        return STATE_NAME_TO_CODE[stateName] || '';
+    } catch (_error) {
+        return '';
+    }
+}
+
+const STATE_NAME_TO_CODE = {
+    Alabama: 'AL', Alaska: 'AK', Arizona: 'AZ', Arkansas: 'AR', California: 'CA',
+    Colorado: 'CO', Connecticut: 'CT', Delaware: 'DE', 'District of Columbia': 'DC',
+    Florida: 'FL', Georgia: 'GA', Hawaii: 'HI', Idaho: 'ID', Illinois: 'IL',
+    Indiana: 'IN', Iowa: 'IA', Kansas: 'KS', Kentucky: 'KY', Louisiana: 'LA',
+    Maine: 'ME', Maryland: 'MD', Massachusetts: 'MA', Michigan: 'MI', Minnesota: 'MN',
+    Mississippi: 'MS', Missouri: 'MO', Montana: 'MT', Nebraska: 'NE', Nevada: 'NV',
+    'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM', 'New York': 'NY',
+    'North Carolina': 'NC', 'North Dakota': 'ND', Ohio: 'OH', Oklahoma: 'OK',
+    Oregon: 'OR', Pennsylvania: 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC',
+    'South Dakota': 'SD', Tennessee: 'TN', Texas: 'TX', Utah: 'UT', Vermont: 'VT',
+    Virginia: 'VA', Washington: 'WA', 'West Virginia': 'WV', Wisconsin: 'WI', Wyoming: 'WY'
+};
 
 function hexToRgba(hex, alpha) {
     const r = parseInt(hex.slice(1, 3), 16);
