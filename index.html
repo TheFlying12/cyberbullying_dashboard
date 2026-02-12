@@ -185,23 +185,43 @@
         <section id="contact-reps" class="tab-content">
             <header class="section-header">
                 <h2>Contact Your Representatives</h2>
-                <p>Use the official lookup tools, then copy a ready-to-send message template and email your House member and Senators.</p>
+                <p>National-level congressional data is loaded directly into this page so you can search and view representatives without leaving the dashboard.</p>
             </header>
 
             <div class="action-grid">
                 <div class="info-card">
-                    <h3>Representative Lookup</h3>
-                    <p class="source-desc">Enter your ZIP code to generate a direct House lookup link. Senate and full federal lookup links are also included.</p>
+                    <h3>National Congressional Directory</h3>
+                    <p class="source-desc">Live national roster with current U.S. Senators and House members. Search by name, state, or chamber.</p>
 
-                    <label for="zip-input">ZIP code</label>
-                    <input id="zip-input" type="text" inputmode="numeric" maxlength="10" placeholder="e.g., 10001">
-                    <button id="lookup-btn" class="action-btn" type="button">Generate Lookup Links</button>
-                    <p id="lookup-status" class="status-text"></p>
+                    <div class="directory-controls">
+                        <input id="rep-search" type="text" placeholder="Search by name or party">
+                        <select id="chamber-filter">
+                            <option value="all">All Chambers</option>
+                            <option value="sen">Senate</option>
+                            <option value="rep">House</option>
+                        </select>
+                        <select id="state-filter">
+                            <option value="all">All States</option>
+                        </select>
+                        <button id="refresh-directory-btn" class="action-btn action-btn-secondary" type="button">Refresh Data</button>
+                    </div>
+                    <p id="directory-status" class="status-text"></p>
+                    <p id="directory-summary" class="status-text"></p>
 
-                    <div class="lookup-links">
-                        <a id="house-link" class="ext-link" href="https://ziplook.house.gov/htbin/findrep_house" target="_blank" rel="noopener noreferrer">Find U.S. House Representative</a>
-                        <a class="ext-link" href="https://www.senate.gov/senators/senators-contact.htm" target="_blank" rel="noopener noreferrer">Find Your U.S. Senators</a>
-                        <a class="ext-link" href="https://www.usa.gov/elected-officials" target="_blank" rel="noopener noreferrer">Find Federal, State, and Local Officials</a>
+                    <div class="directory-table-wrap">
+                        <table class="directory-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Chamber</th>
+                                    <th>State</th>
+                                    <th>District</th>
+                                    <th>Party</th>
+                                    <th>Phone</th>
+                                </tr>
+                            </thead>
+                            <tbody id="directory-body"></tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -221,15 +241,11 @@
 
                         <label for="policy-priority">Priority ask</label>
                         <input id="policy-priority" type="text" placeholder="e.g., fund school-based prevention programs">
-
-                        <label for="rep-email">Representative email (optional)</label>
-                        <input id="rep-email" type="email" placeholder="name@example.gov">
                     </div>
 
                     <div class="template-actions">
                         <button id="generate-template-btn" class="action-btn" type="button">Generate Template</button>
                         <button id="copy-template-btn" class="action-btn action-btn-secondary" type="button">Copy Template</button>
-                        <button id="open-mailto-btn" class="action-btn action-btn-secondary" type="button">Open Email App</button>
                     </div>
 
                     <textarea id="email-template" rows="14" readonly></textarea>

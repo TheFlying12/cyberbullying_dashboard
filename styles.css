@@ -531,6 +531,43 @@ textarea {
   flex-wrap: wrap;
 }
 
+.directory-controls {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr auto;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.directory-table-wrap {
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  overflow: auto;
+  max-height: 460px;
+  margin-top: 0.6rem;
+}
+
+.directory-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.directory-table th,
+.directory-table td {
+  padding: 0.6rem 0.55rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.directory-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #0f172a;
+  color: var(--text-main);
+}
+
 .action-btn {
   border: 1px solid transparent;
   background: var(--primary);
@@ -550,12 +587,6 @@ textarea {
   background: #1e293b;
   color: var(--text-main);
   border-color: var(--border-light);
-}
-
-.lookup-links {
-  display: flex;
-  flex-direction: column;
-  margin-top: 0.5rem;
 }
 
 .status-text {
@@ -612,5 +643,9 @@ textarea {
 
   .policy-doc {
     padding: 1.4rem;
+  }
+
+  .directory-controls {
+    grid-template-columns: 1fr;
   }
 }

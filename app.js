@@ -241,37 +241,137 @@ function animateCounter(element, targetValue, duration) {
 }
 
 function initTakeAction() {
-    const lookupBtn = document.getElementById('lookup-btn');
-    const zipInput = document.getElementById('zip-input');
-    const houseLink = document.getElementById('house-link');
-    const lookupStatus = document.getElementById('lookup-status');
+    const repSearch = document.getElementById('rep-search');
+    const chamberFilter = document.getElementById('chamber-filter');
+    const stateFilter = document.getElementById('state-filter');
+    const refreshDirectoryBtn = document.getElementById('refresh-directory-btn');
+    const directoryStatus = document.getElementById('directory-status');
+    const directorySummary = document.getElementById('directory-summary');
+    const directoryBody = document.getElementById('directory-body');
 
     const senderName = document.getElementById('sender-name');
     const senderCity = document.getElementById('sender-city');
     const senderState = document.getElementById('sender-state');
     const policyPriority = document.getElementById('policy-priority');
-    const repEmail = document.getElementById('rep-email');
     const templateBox = document.getElementById('email-template');
     const generateTemplateBtn = document.getElementById('generate-template-btn');
     const copyTemplateBtn = document.getElementById('copy-template-btn');
-    const openMailtoBtn = document.getElementById('open-mailto-btn');
     const copyStatus = document.getElementById('copy-status');
 
-    if (lookupBtn && zipInput && houseLink && lookupStatus) {
-        lookupBtn.addEventListener('click', () => {
-            const cleaned = zipInput.value.trim().match(/^\d{5}$/);
-            if (!cleaned) {
-                lookupStatus.textContent = 'Enter a valid 5-digit ZIP code to build the direct House lookup URL.';
+    const hasDirectoryElements = repSearch && chamberFilter && stateFilter && refreshDirectoryBtn && directoryStatus && directorySummary && directoryBody;
+    if (hasDirectoryElements) {
+        let directoryData = [];
+
+        const populateStateFilter = (rows) => {
+            const stateOptions = Array.from(new Set(rows.map(row => row.state))).sort();
+            stateFilter.innerHTML = '<option value="all">All States</option>';
+            stateOptions.forEach(stateCode => {
+                const option = document.createElement('option');
+                option.value = stateCode;
+                option.textContent = stateCode;
+                stateFilter.appendChild(option);
+            });
+        };
+
+        const renderDirectory = (rows) => {
+            if (!rows.length) {
+                directoryBody.innerHTML = '<tr><td colspan="6">No representatives match the current filters.</td></tr>';
+                directorySummary.textContent = 'Showing 0 results.';
                 return;
             }
 
-            const zip = cleaned[0];
-            houseLink.href = `https://ziplook.house.gov/htbin/findrep_house?ZIP=${zip}`;
-            lookupStatus.textContent = `House lookup link updated for ZIP ${zip}. Open the link below.`;
-        });
+            directoryBody.innerHTML = rows.map(row => {
+                const districtValue = row.chamber === 'House' ? row.district : '-';
+                return `<tr>
+                    <td>${escapeHtml(row.name)}</td>
+                    <td>${row.chamber}</td>
+                    <td>${row.state}</td>
+                    <td>${districtValue}</td>
+                    <td>${row.party}</td>
+                    <td>${escapeHtml(row.phone)}</td>
+                </tr>`;
+            }).join('');
+
+            const senateCount = rows.filter(row => row.chamber === 'Senate').length;
+            const houseCount = rows.filter(row => row.chamber === 'House').length;
+            directorySummary.textContent = `Showing ${rows.length} members (${senateCount} Senate, ${houseCount} House).`;
+        };
+
+        const applyFilters = () => {
+            const query = repSearch.value.trim().toLowerCase();
+            const chamber = chamberFilter.value;
+            const state = stateFilter.value;
+
+            const filteredRows = directoryData.filter(row => {
+                const queryMatch = query.length === 0
+                    || row.name.toLowerCase().includes(query)
+                    || row.party.toLowerCase().includes(query);
+                const chamberMatch = chamber === 'all' || row.roleType === chamber;
+                const stateMatch = state === 'all' || row.state === state;
+                return queryMatch && chamberMatch && stateMatch;
+            });
+
+            renderDirectory(filteredRows);
+        };
+
+        const extractCurrentRole = (member) => {
+            const terms = member.terms || [];
+            if (!terms.length) return null;
+            const currentRole = terms[terms.length - 1];
+            if (!currentRole || !['sen', 'rep'].includes(currentRole.type)) return null;
+
+            const districtValue = currentRole.type === 'rep'
+                ? (currentRole.district === 0 ? 'At-Large' : currentRole.district || '-')
+                : '-';
+
+            return {
+                name: member.name?.official_full
+                    || [member.name?.first, member.name?.middle, member.name?.last, member.name?.suffix].filter(Boolean).join(' '),
+                chamber: currentRole.type === 'sen' ? 'Senate' : 'House',
+                roleType: currentRole.type,
+                state: currentRole.state || '-',
+                district: districtValue,
+                party: currentRole.party || 'Unknown',
+                phone: currentRole.phone || 'Not listed'
+            };
+        };
+
+        const loadNationalDirectory = async () => {
+            directoryStatus.textContent = 'Loading national congressional roster...';
+            directorySummary.textContent = '';
+            directoryBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+
+            try {
+                const response = await fetch('https://unitedstates.github.io/congress-legislators/legislators-current.json', { cache: 'no-store' });
+                if (!response.ok) {
+                    throw new Error(`Directory request failed (${response.status})`);
+                }
+
+                const json = await response.json();
+                directoryData = json
+                    .map(extractCurrentRole)
+                    .filter(Boolean)
+                    .sort((a, b) => a.state.localeCompare(b.state) || a.chamber.localeCompare(b.chamber) || a.name.localeCompare(b.name));
+
+                populateStateFilter(directoryData);
+                applyFilters();
+                directoryStatus.textContent = `Loaded ${directoryData.length} members from the national Congress dataset.`;
+            } catch (_error) {
+                directoryBody.innerHTML = '<tr><td colspan="6">Unable to load live directory data right now.</td></tr>';
+                directoryStatus.textContent = 'National directory failed to load. Try Refresh Data in a moment.';
+                directorySummary.textContent = '';
+            }
+        };
+
+        repSearch.addEventListener('input', applyFilters);
+        chamberFilter.addEventListener('change', applyFilters);
+        stateFilter.addEventListener('change', applyFilters);
+        refreshDirectoryBtn.addEventListener('click', loadNationalDirectory);
+
+        loadNationalDirectory();
     }
 
-    if (!templateBox || !generateTemplateBtn || !copyTemplateBtn || !openMailtoBtn || !copyStatus) return;
+    if (!templateBox || !generateTemplateBtn || !copyTemplateBtn || !copyStatus) return;
 
     const renderTemplate = () => {
         const name = senderName?.value.trim() || '[Your Full Name]';
@@ -301,29 +401,16 @@ function initTakeAction() {
         }
     });
 
-    openMailtoBtn.addEventListener('click', () => {
-        const draft = templateBox.value.trim();
-        if (!draft) {
-            copyStatus.textContent = 'Generate a template first.';
-            return;
-        }
-
-        const to = repEmail?.value.trim() || '';
-        const lines = draft.split('\n');
-        let subject = 'Protect Children from Cyberbullying';
-        let body = draft;
-
-        if (lines[0] && lines[0].startsWith('Subject:')) {
-            subject = lines[0].replace('Subject:', '').trim() || subject;
-            body = lines.slice(2).join('\n').trim();
-        }
-
-        const mailtoUrl = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        window.location.href = mailtoUrl;
-        copyStatus.textContent = 'Opening your default email app with a prefilled draft.';
-    });
-
     renderTemplate();
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
 }
 
 function hexToRgba(hex, alpha) {
