@@ -196,8 +196,10 @@
                     <div class="directory-controls">
                         <input id="rep-search" type="text" placeholder="Search by name or party (e.g., Smith, Democrat)">
                         <input id="zip-filter" type="text" inputmode="numeric" maxlength="5" placeholder="ZIP code (e.g., 10001)">
-                        <button id="apply-zip-btn" class="action-btn action-btn-secondary" type="button">Use ZIP</button>
-                        <button id="use-location-btn" class="action-btn action-btn-secondary" type="button">Use My Location</button>
+                        <div class="zip-action-group">
+                            <button id="apply-zip-btn" class="action-btn action-btn-secondary" type="button">Use ZIP</button>
+                            <button id="use-location-btn" class="action-btn action-btn-secondary" type="button">Use My Location</button>
+                        </div>
                         <select id="chamber-filter">
                             <option value="all">All Chambers</option>
                             <option value="sen">Senate</option>
