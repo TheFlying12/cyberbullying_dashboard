@@ -242,6 +242,9 @@ function animateCounter(element, targetValue, duration) {
 
 function initTakeAction() {
     const repSearch = document.getElementById('rep-search');
+    const zipFilter = document.getElementById('zip-filter');
+    const applyZipBtn = document.getElementById('apply-zip-btn');
+    const useLocationBtn = document.getElementById('use-location-btn');
     const chamberFilter = document.getElementById('chamber-filter');
     const stateFilter = document.getElementById('state-filter');
     const refreshDirectoryBtn = document.getElementById('refresh-directory-btn');
@@ -313,6 +316,9 @@ ${name}`;
     }
 
     const hasDirectoryElements = repSearch
+        && zipFilter
+        && applyZipBtn
+        && useLocationBtn
         && chamberFilter
         && stateFilter
         && refreshDirectoryBtn
@@ -426,6 +432,92 @@ ${name}`;
             renderDirectory(filteredRows);
         };
 
+        const applyStateSelection = (stateAbbr, sourceLabel) => {
+            const hasState = Array.from(stateFilter.options).some(option => option.value === stateAbbr);
+            if (!hasState) {
+                directoryStatus.textContent = `${sourceLabel} maps to ${stateAbbr}, but no members are currently available for that state in this dataset.`;
+                return false;
+            }
+
+            stateFilter.value = stateAbbr;
+            chamberFilter.value = 'all';
+            repSearch.value = '';
+            applyFilters();
+            directoryStatus.textContent = `${sourceLabel} mapped to ${stateAbbr}. Showing that state's delegation.`;
+            return true;
+        };
+
+        const applyZipLookup = async () => {
+            const zip = zipFilter.value.trim();
+            if (!/^\d{5}$/.test(zip)) {
+                directoryStatus.textContent = 'Enter a valid 5-digit ZIP code.';
+                return;
+            }
+
+            directoryStatus.textContent = `Looking up ZIP ${zip}...`;
+            try {
+                const response = await fetch(`https://api.zippopotam.us/us/${zip}`, { cache: 'no-store' });
+                if (!response.ok) {
+                    throw new Error(`ZIP lookup failed (${response.status})`);
+                }
+                const payload = await response.json();
+                const stateAbbr = payload?.places?.[0]?.['state abbreviation'];
+                if (!stateAbbr) {
+                    throw new Error('State not found for ZIP');
+                }
+
+                applyStateSelection(stateAbbr, `ZIP ${zip}`);
+            } catch (_error) {
+                directoryStatus.textContent = `Could not resolve ZIP ${zip} right now. You can still filter by state manually.`;
+            }
+        };
+
+        const useMyLocation = async () => {
+            if (!navigator.geolocation) {
+                directoryStatus.textContent = 'Geolocation is not supported by this browser.';
+                return;
+            }
+
+            directoryStatus.textContent = 'Getting your location...';
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                try {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    const reverseUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&localityLanguage=en`;
+                    const response = await fetch(reverseUrl, { cache: 'no-store' });
+                    if (!response.ok) {
+                        throw new Error(`Reverse geocode failed (${response.status})`);
+                    }
+
+                    const geo = await response.json();
+                    const zipFromGeo = typeof geo.postcode === 'string' ? geo.postcode.slice(0, 5) : '';
+                    if (/^\d{5}$/.test(zipFromGeo)) {
+                        zipFilter.value = zipFromGeo;
+                        await applyZipLookup();
+                        return;
+                    }
+
+                    const stateFromCode = typeof geo.principalSubdivisionCode === 'string'
+                        ? geo.principalSubdivisionCode.replace('US-', '')
+                        : '';
+                    if (/^[A-Z]{2}$/.test(stateFromCode)) {
+                        applyStateSelection(stateFromCode, 'Current location');
+                        return;
+                    }
+
+                    directoryStatus.textContent = 'Location found, but ZIP/state could not be resolved. Enter ZIP manually.';
+                } catch (_error) {
+                    directoryStatus.textContent = 'Could not resolve your location right now. Enter ZIP manually.';
+                }
+            }, () => {
+                directoryStatus.textContent = 'Location permission denied or unavailable. Enter ZIP manually.';
+            }, {
+                enableHighAccuracy: false,
+                timeout: 8000,
+                maximumAge: 600000
+            });
+        };
+
         const extractCurrentRole = (member) => {
             const terms = member.terms || [];
             if (!terms.length) return null;
@@ -481,6 +573,14 @@ ${name}`;
         };
 
         repSearch.addEventListener('input', applyFilters);
+        applyZipBtn.addEventListener('click', applyZipLookup);
+        useLocationBtn.addEventListener('click', useMyLocation);
+        zipFilter.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                applyZipLookup();
+            }
+        });
         chamberFilter.addEventListener('change', applyFilters);
         stateFilter.addEventListener('change', applyFilters);
         refreshDirectoryBtn.addEventListener('click', loadNationalDirectory);
