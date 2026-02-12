@@ -4,21 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cyberbullying in Children: Data & Policy</title>
-    
-    <!-- Fonts -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Styles -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-content">
             <div class="logo">Cyberbullying in Children: <span class="highlight">Data & Policy</span></div>
@@ -26,51 +21,61 @@
                 <button class="tab-btn active" data-tab="visualizations">Visualizations</button>
                 <button class="tab-btn" data-tab="data-sources">Data Sources</button>
                 <button class="tab-btn" data-tab="policy-brief">Policy Brief</button>
+                <button class="tab-btn" data-tab="contact-reps">Take Action</button>
             </div>
         </div>
     </nav>
 
     <main class="container">
-        
-        <!-- VISUALIZATIONS TAB -->
+
         <section id="visualizations" class="tab-content active">
             <header class="hero">
-                <h1>The Silent Crisis: Trends in Digital Harassment</h1>
-                <p>Analyzing the prevalence and impact of cyberbullying among adolescents (ages 10-18) over the last decade.</p>
-                
+                <h1>Cyberbullying in U.S. Youth: What the Latest Data Shows</h1>
+                <p>Current numbers from CDC, NCES, and Pew show cyberbullying remains widespread and persistently harmful for children and teens.</p>
+
                 <div class="kpi-grid">
                     <div class="kpi-card">
-                        <h3>avg. prevalence</h3>
-                        <div class="kpi-value">36.5%</div>
-                        <div class="kpi-sub">Lifetime experience</div>
+                        <h3>Electronically bullied (2023)</h3>
+                        <div class="kpi-value">16%</div>
+                        <div class="kpi-sub">U.S. high school students (CDC YRBS)</div>
                     </div>
                     <div class="kpi-card">
-                        <h3>reporting rate</h3>
-                        <div class="kpi-value">42%</div>
-                        <div class="kpi-sub">Reported to adult</div>
+                        <h3>Bullied at school (2023)</h3>
+                        <div class="kpi-value">19%</div>
+                        <div class="kpi-sub">On school property (CDC YRBS)</div>
                     </div>
                     <div class="kpi-card">
-                        <h3>peak age</h3>
-                        <div class="kpi-value">14-15</div>
-                        <div class="kpi-sub">Middle school years</div>
+                        <h3>Ever cyberbullied (2022)</h3>
+                        <div class="kpi-value">46%</div>
+                        <div class="kpi-sub">U.S. teens ages 13-17 (Pew)</div>
                     </div>
                 </div>
             </header>
 
+            <section class="impact-visual-card" aria-labelledby="impact-title">
+                <div class="impact-header">
+                    <h2 id="impact-title">Moving Snapshot: 1 in 6 Students</h2>
+                    <p>Each pulse represents one of 30 students. Five highlighted students approximates the latest 16% CDC estimate.</p>
+                </div>
+                <div id="impact-grid" class="impact-grid" aria-label="Animated visualization of affected students"></div>
+                <p class="impact-caption"><span id="impact-counter">0</span> of 30 highlighted</p>
+                <p id="impact-fact-text" class="impact-fact-text"></p>
+            </section>
+
             <div class="controls-bar">
                 <label for="metric-select">Select Metric:</label>
                 <select id="metric-select">
-                    <option value="prevalence">Prevalence Rate</option>
-                    <option value="reporting">Reporting Rate</option>
+                    <option value="electronic">Electronically Bullied</option>
+                    <option value="school">Bullied at School</option>
                 </select>
                 <span class="divider">|</span>
-                <span class="control-hint">Visualizing annual trends and age demographics</span>
+                <span class="control-hint">CDC YRBS national trend (2013-2023)</span>
             </div>
 
             <div class="charts-grid">
                 <div class="chart-card main-chart">
                     <div class="chart-header">
-                        <h2>Trends Over Time (2015-2024)</h2>
+                        <h2 id="trend-chart-title">Trend Over Time</h2>
                     </div>
                     <div class="canvas-container">
                         <canvas id="trendChart"></canvas>
@@ -78,7 +83,7 @@
                 </div>
                 <div class="chart-card secondary-chart">
                     <div class="chart-header">
-                        <h2>By Age Group</h2>
+                        <h2 id="age-chart-title">2013 vs 2023</h2>
                     </div>
                     <div class="canvas-container">
                         <canvas id="ageChart"></canvas>
@@ -87,76 +92,69 @@
             </div>
         </section>
 
-
-        <!-- DATA SOURCES TAB -->
         <section id="data-sources" class="tab-content">
             <header class="section-header">
                 <h2>Data Sources & Methodology</h2>
-                <p>Transparency is key to understanding the scope and limitations of current cyberbullying research.</p>
+                <p>This dashboard now prioritizes official U.S. datasets and clearly labels the survey year for each statistic.</p>
             </header>
 
             <div class="cards-grid">
-                <!-- Source 1 -->
                 <div class="info-card">
                     <div class="card-badge">Primary Source</div>
-                    <h3>Cyberbullying Research Center (CRC)</h3>
-                    <p class="source-desc">Annual representative surveys of U.S. middle and high school students.</p>
+                    <h3>CDC: Youth Risk Behavior Survey (YRBS)</h3>
+                    <p class="source-desc">National high school survey with trend data from 2013-2023.</p>
                     <ul class="data-details">
-                        <li><strong>Fields:</strong> Victimization %, Offending %, Platform breakdown</li>
-                        <li><strong>Sample Size:</strong> ~5,000 per year</li>
-                        <li><strong>Limitations:</strong> Self-reported data may introduce bias.</li>
+                        <li><strong>Key values used:</strong> 16% electronically bullied, 19% bullied at school (2023)</li>
+                        <li><strong>Trend series used:</strong> 2013, 2015, 2017, 2019, 2021, 2023</li>
+                        <li><strong>Limitations:</strong> High school only; self-report survey data.</li>
                     </ul>
-                    <a href="#" class="ext-link">Visit Dataset &rarr;</a>
+                    <a href="https://www.cdc.gov/yrbs/dstr/index.html" target="_blank" rel="noopener noreferrer" class="ext-link">View CDC YRBS report &rarr;</a>
                 </div>
 
-                <!-- Source 2 -->
                 <div class="info-card">
-                    <h3>National Crime Victimization Survey</h3>
-                    <p class="source-desc">Bureau of Justice Statistics supplement on School Crime and Safety.</p>
+                    <h3>Pew Research Center: Teens and Cyberbullying (2022)</h3>
+                    <p class="source-desc">National survey of U.S. teens ages 13-17 on online harassment experiences.</p>
                     <ul class="data-details">
-                        <li><strong>Fields:</strong> Electronic bullying reporting, Frequency</li>
-                        <li><strong>Sample Size:</strong> ~9,000 students annually</li>
-                        <li><strong>Limitations:</strong> Stricter definition of "bullying" yields lower stats.</li>
+                        <li><strong>Key value used:</strong> 46% report ever experiencing at least one cyberbullying behavior</li>
+                        <li><strong>Fieldwork dates:</strong> April 14-May 4, 2022</li>
+                        <li><strong>Limitations:</strong> Different cyberbullying definitions than school-based surveys.</li>
                     </ul>
-                    <a href="#" class="ext-link">Visit Dataset &rarr;</a>
+                    <a href="https://www.pewresearch.org/internet/2022/12/15/teens-and-cyberbullying-2022/" target="_blank" rel="noopener noreferrer" class="ext-link">View Pew report &rarr;</a>
                 </div>
 
-                <!-- Source 3 -->
                 <div class="info-card">
-                    <h3>Pew Research Center</h3>
-                    <p class="source-desc">Teens and Technology reports focusing on online harassment.</p>
+                    <h3>NCES: Condition of Education (Student Bullying)</h3>
+                    <p class="source-desc">Federal education indicator using the School Crime Supplement.</p>
                     <ul class="data-details">
-                        <li><strong>Fields:</strong> Platform usage, Type of harassment (name-calling, threats)</li>
-                        <li><strong>Sample Size:</strong> ~1,500 teens</li>
-                        <li><strong>Limitations:</strong> Irregular survey intervals (not annual).</li>
+                        <li><strong>Key values used:</strong> 22% bullied online/text among bullied students (2021-22)</li>
+                        <li><strong>Additional context:</strong> 44% of bullied students reported notifying an adult at school</li>
+                        <li><strong>Limitations:</strong> "Online or by text" is measured among students already reporting bullying.</li>
                     </ul>
-                    <a href="#" class="ext-link">Visit Dataset &rarr;</a>
+                    <a href="https://nces.ed.gov/programs/coe/indicator/a10" target="_blank" rel="noopener noreferrer" class="ext-link">View NCES indicator &rarr;</a>
                 </div>
             </div>
         </section>
 
-
-        <!-- POLICY BRIEF TAB -->
         <section id="policy-brief" class="tab-content">
             <div class="brief-container">
                 <article class="policy-doc">
                     <header class="doc-header">
-                        <div class="doc-meta">POLICY BRIEF &bull; JANUARY 2026</div>
-                        <h1>Combating Digital Harassment: A Multi-Stakeholder Approach</h1>
-                        <p class="lead">Evidence-based recommendations for reducing cyberbullying incidents in K-12 educational environments.</p>
+                        <div class="doc-meta">POLICY BRIEF &bull; FEBRUARY 2026</div>
+                        <h1>Combating Cyberbullying: A Prevention and Accountability Framework</h1>
+                        <p class="lead">Evidence-based recommendations for reducing cyberbullying among children and teens in schools and online spaces.</p>
                     </header>
 
                     <div class="doc-section">
                         <h2>Executive Summary</h2>
-                        <p>Cyberbullying remains a persistent threat to adolescent mental health, with prevalence rates fluctuating between 30-40% over the last decade. Despite increased awareness, reporting rates remain stagnantly low (below 50%). This brief argues for shifts from punitive zeros-tolerance policies to restorative justice approaches and mandatory digital citizenship curricula.</p>
+                        <p>Recent federal and national survey data show cyberbullying remains common and has not declined meaningfully over the last decade. In 2023, 16% of U.S. high school students reported being electronically bullied and 19% reported being bullied at school (CDC YRBS). A broader teen survey found 46% had experienced at least one form of cyberbullying (Pew, 2022). Policy should combine prevention education, safer platform design, and easier reporting pathways for families.</p>
                     </div>
 
                     <div class="doc-section">
                         <h2>Key Findings</h2>
                         <ul>
-                            <li><strong>Prevalence is consistent:</strong> Despite platform changes (e.g., rise of TikTok), victimization rates have not significantly dropped.</li>
-                            <li><strong>The "Middle School Peak":</strong> Data confirms that students aged 13-15 are at the highest risk, coinciding with peak social media adoption.</li>
-                            <li><strong>Reporting Gap:</strong> Less than half of victims report incidents to an adult due to fear of device confiscation or retaliation.</li>
+                            <li><strong>Cyberbullying remains persistent:</strong> CDC trend data from 2013-2023 for electronic bullying stays around 15-16%.</li>
+                            <li><strong>School bullying is still high:</strong> In-person school bullying rose from 15% (2021) to 19% (2023).</li>
+                            <li><strong>Youth perception of severity is high:</strong> Pew (2022) found 53% of teens view online harassment as a major problem.</li>
                         </ul>
                     </div>
 
@@ -164,30 +162,86 @@
                         <h2>Recommendations</h2>
                         <div class="recommendation-block">
                             <h3>For Schools</h3>
-                            <p>Implement anonymous reporting systems that do not automatically trigger disciplinary action, encouraging bystander intervention.</p>
+                            <p>Create anonymous reporting channels, standardized response timelines, and family communication protocols for cyberbullying incidents.</p>
                         </div>
                         <div class="recommendation-block">
                             <h3>For Policymakers</h3>
-                            <p>Mandate social & emotional learning (SEL) components in digital literacy standards. Fund research into algorithmic amplification of conflict.</p>
+                            <p>Fund school-based prevention and counselor staffing, and require annual district reporting on bullying and cyberbullying outcomes.</p>
                         </div>
                         <div class="recommendation-block">
                             <h3>For Platforms</h3>
-                            <p>Improve "nudging" features that detect aggressive language before posting. Simplify reporting flows for minors.</p>
+                            <p>Strengthen anti-harassment defaults for minors, streamline reporting UX, and provide transparent response metrics.</p>
                         </div>
                     </div>
 
                     <div class="doc-section">
                         <h2>Limitations</h2>
-                        <p>This analysis relies on aggregated survey data. Variations in how "bullying" is defined across studies (e.g., single incident vs. repeated behavior) complicates direct YoY comparisons.</p>
+                        <p>Survey definitions differ across sources, and some statistics apply to specific populations (e.g., high school students vs. teens ages 13-17). These measures should be interpreted together for context rather than as directly interchangeable values.</p>
                     </div>
                 </article>
+            </div>
+        </section>
+
+        <section id="contact-reps" class="tab-content">
+            <header class="section-header">
+                <h2>Contact Your Representatives</h2>
+                <p>Use the official lookup tools, then copy a ready-to-send message template and email your House member and Senators.</p>
+            </header>
+
+            <div class="action-grid">
+                <div class="info-card">
+                    <h3>Representative Lookup</h3>
+                    <p class="source-desc">Enter your ZIP code to generate a direct House lookup link. Senate and full federal lookup links are also included.</p>
+
+                    <label for="zip-input">ZIP code</label>
+                    <input id="zip-input" type="text" inputmode="numeric" maxlength="10" placeholder="e.g., 10001">
+                    <button id="lookup-btn" class="action-btn" type="button">Generate Lookup Links</button>
+                    <p id="lookup-status" class="status-text"></p>
+
+                    <div class="lookup-links">
+                        <a id="house-link" class="ext-link" href="https://ziplook.house.gov/htbin/findrep_house" target="_blank" rel="noopener noreferrer">Find U.S. House Representative</a>
+                        <a class="ext-link" href="https://www.senate.gov/senators/senators-contact.htm" target="_blank" rel="noopener noreferrer">Find Your U.S. Senators</a>
+                        <a class="ext-link" href="https://www.usa.gov/elected-officials" target="_blank" rel="noopener noreferrer">Find Federal, State, and Local Officials</a>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h3>Email Template Builder</h3>
+                    <p class="source-desc">Personalize your message, then copy and paste it into your representative's contact form or email.</p>
+
+                    <div class="template-form-grid">
+                        <label for="sender-name">Your name</label>
+                        <input id="sender-name" type="text" placeholder="Your full name">
+
+                        <label for="sender-city">City</label>
+                        <input id="sender-city" type="text" placeholder="Your city">
+
+                        <label for="sender-state">State</label>
+                        <input id="sender-state" type="text" placeholder="State abbreviation (e.g., NY)">
+
+                        <label for="policy-priority">Priority ask</label>
+                        <input id="policy-priority" type="text" placeholder="e.g., fund school-based prevention programs">
+
+                        <label for="rep-email">Representative email (optional)</label>
+                        <input id="rep-email" type="email" placeholder="name@example.gov">
+                    </div>
+
+                    <div class="template-actions">
+                        <button id="generate-template-btn" class="action-btn" type="button">Generate Template</button>
+                        <button id="copy-template-btn" class="action-btn action-btn-secondary" type="button">Copy Template</button>
+                        <button id="open-mailto-btn" class="action-btn action-btn-secondary" type="button">Open Email App</button>
+                    </div>
+
+                    <textarea id="email-template" rows="14" readonly></textarea>
+                    <p id="copy-status" class="status-text"></p>
+                </div>
             </div>
         </section>
 
     </main>
 
     <footer class="site-footer">
-        <p>Cyberbullying Visualization Tool &copy; 2026. Built for public awareness.</p>
+        <p>Cyberbullying Visualization Tool &copy; 2026. Built for public awareness and action.</p>
     </footer>
 
     <script src="app.js"></script>
