@@ -191,10 +191,10 @@
             <div class="action-grid">
                 <div class="info-card">
                     <h3>National Congressional Directory</h3>
-                    <p class="source-desc">Live national roster with current U.S. Senators and House members. Search by name, state, or chamber.</p>
+                    <p class="source-desc">Live scraped roster of current U.S. Senators and House members. Search by name, party, state, and chamber.</p>
 
                     <div class="directory-controls">
-                        <input id="rep-search" type="text" placeholder="Search by name or party">
+                        <input id="rep-search" type="text" placeholder="Search by name or party (e.g., Smith, Democrat)">
                         <select id="chamber-filter">
                             <option value="all">All Chambers</option>
                             <option value="sen">Senate</option>
@@ -208,20 +208,35 @@
                     <p id="directory-status" class="status-text"></p>
                     <p id="directory-summary" class="status-text"></p>
 
-                    <div class="directory-table-wrap">
-                        <table class="directory-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Chamber</th>
-                                    <th>State</th>
-                                    <th>District</th>
-                                    <th>Party</th>
-                                    <th>Phone</th>
-                                </tr>
-                            </thead>
-                            <tbody id="directory-body"></tbody>
-                        </table>
+                    <div class="directory-stat-strip">
+                        <div class="stat-pill">
+                            <span class="stat-label">Total</span>
+                            <span id="stat-total" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-pill">
+                            <span class="stat-label">Senate</span>
+                            <span id="stat-senate" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-pill">
+                            <span class="stat-label">House</span>
+                            <span id="stat-house" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-pill">
+                            <span class="stat-label">Dem</span>
+                            <span id="stat-dem" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-pill">
+                            <span class="stat-label">Rep</span>
+                            <span id="stat-gop" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-pill">
+                            <span class="stat-label">Other</span>
+                            <span id="stat-other" class="stat-value">0</span>
+                        </div>
+                    </div>
+
+                    <div id="directory-cards" class="directory-cards" aria-live="polite">
+                        <p class="status-text">Loading directory cards...</p>
                     </div>
                 </div>
 

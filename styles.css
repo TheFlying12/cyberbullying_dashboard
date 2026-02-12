@@ -538,34 +538,142 @@ textarea {
   margin-bottom: 0.75rem;
 }
 
-.directory-table-wrap {
-  border: 1px solid var(--border-light);
+.directory-stat-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(80px, 1fr));
+  gap: 0.55rem;
+  margin-top: 0.7rem;
+  margin-bottom: 0.8rem;
+}
+
+.stat-pill {
+  background: linear-gradient(145deg, rgba(14, 25, 42, 0.95), rgba(30, 41, 59, 0.6));
+  border: 1px solid rgba(56, 189, 248, 0.25);
   border-radius: 10px;
-  overflow: auto;
-  max-height: 460px;
-  margin-top: 0.6rem;
+  padding: 0.45rem 0.55rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
 }
 
-.directory-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
+.stat-label {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.directory-table th,
-.directory-table td {
-  padding: 0.6rem 0.55rem;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-  text-align: left;
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.directory-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+  gap: 0.8rem;
+  margin-top: 0.4rem;
+  max-height: 560px;
+  overflow-y: auto;
+  padding-right: 0.2rem;
+}
+
+.directory-empty {
+  border: 1px dashed var(--border-light);
+  border-radius: 10px;
+  padding: 0.9rem;
+  color: var(--text-muted);
+}
+
+.rep-card {
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  border-radius: 12px;
+  padding: 0.85rem;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.2), transparent 45%),
+    linear-gradient(155deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.62));
+}
+
+.rep-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  align-items: flex-start;
+  margin-bottom: 0.25rem;
+}
+
+.rep-card-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.rep-meta {
+  color: var(--text-muted);
+  font-size: 0.83rem;
+  margin-bottom: 0.5rem;
+}
+
+.chamber-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
   white-space: nowrap;
 }
 
-.directory-table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: #0f172a;
+.badge-senate {
+  background: rgba(56, 189, 248, 0.22);
+  color: #7dd3fc;
+  border: 1px solid rgba(56, 189, 248, 0.5);
+}
+
+.badge-house {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fdba74;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+}
+
+.rep-card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
+  margin-bottom: 0.55rem;
+}
+
+.rep-card-grid div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.86rem;
+}
+
+.meta-label {
+  color: var(--text-muted);
+}
+
+.rep-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.rep-actions a,
+.muted-link {
+  font-size: 0.78rem;
+  text-decoration: none;
+  border: 1px solid var(--border-light);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+}
+
+.rep-actions a {
   color: var(--text-main);
+}
+
+.muted-link {
+  color: var(--text-muted);
 }
 
 .action-btn {
@@ -647,5 +755,9 @@ textarea {
 
   .directory-controls {
     grid-template-columns: 1fr;
+  }
+
+  .directory-stat-strip {
+    grid-template-columns: repeat(3, minmax(70px, 1fr));
   }
 }

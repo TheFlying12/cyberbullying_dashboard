@@ -247,7 +247,13 @@ function initTakeAction() {
     const refreshDirectoryBtn = document.getElementById('refresh-directory-btn');
     const directoryStatus = document.getElementById('directory-status');
     const directorySummary = document.getElementById('directory-summary');
-    const directoryBody = document.getElementById('directory-body');
+    const directoryCards = document.getElementById('directory-cards');
+    const statTotal = document.getElementById('stat-total');
+    const statSenate = document.getElementById('stat-senate');
+    const statHouse = document.getElementById('stat-house');
+    const statDem = document.getElementById('stat-dem');
+    const statGop = document.getElementById('stat-gop');
+    const statOther = document.getElementById('stat-other');
 
     const senderName = document.getElementById('sender-name');
     const senderCity = document.getElementById('sender-city');
@@ -257,7 +263,19 @@ function initTakeAction() {
     const copyTemplateBtn = document.getElementById('copy-template-btn');
     const copyStatus = document.getElementById('copy-status');
 
-    const hasDirectoryElements = repSearch && chamberFilter && stateFilter && refreshDirectoryBtn && directoryStatus && directorySummary && directoryBody;
+    const hasDirectoryElements = repSearch
+        && chamberFilter
+        && stateFilter
+        && refreshDirectoryBtn
+        && directoryStatus
+        && directorySummary
+        && directoryCards
+        && statTotal
+        && statSenate
+        && statHouse
+        && statDem
+        && statGop
+        && statOther;
     if (hasDirectoryElements) {
         let directoryData = [];
 
@@ -272,23 +290,59 @@ function initTakeAction() {
             });
         };
 
+        const updateStats = (rows) => {
+            const partyCounts = rows.reduce((acc, row) => {
+                const partyKey = row.party.toLowerCase();
+                if (partyKey.startsWith('dem')) acc.dem += 1;
+                else if (partyKey.startsWith('rep')) acc.gop += 1;
+                else acc.other += 1;
+                return acc;
+            }, { dem: 0, gop: 0, other: 0 });
+
+            statTotal.textContent = String(rows.length);
+            statSenate.textContent = String(rows.filter(row => row.roleType === 'sen').length);
+            statHouse.textContent = String(rows.filter(row => row.roleType === 'rep').length);
+            statDem.textContent = String(partyCounts.dem);
+            statGop.textContent = String(partyCounts.gop);
+            statOther.textContent = String(partyCounts.other);
+        };
+
         const renderDirectory = (rows) => {
+            updateStats(rows);
             if (!rows.length) {
-                directoryBody.innerHTML = '<tr><td colspan="6">No representatives match the current filters.</td></tr>';
+                directoryCards.innerHTML = '<div class="directory-empty">No members match the current filters.</div>';
                 directorySummary.textContent = 'Showing 0 results.';
                 return;
             }
 
-            directoryBody.innerHTML = rows.map(row => {
-                const districtValue = row.chamber === 'House' ? row.district : '-';
-                return `<tr>
-                    <td>${escapeHtml(row.name)}</td>
-                    <td>${row.chamber}</td>
-                    <td>${row.state}</td>
-                    <td>${districtValue}</td>
-                    <td>${row.party}</td>
-                    <td>${escapeHtml(row.phone)}</td>
-                </tr>`;
+            directoryCards.innerHTML = rows.map(row => {
+                const chamberClass = row.roleType === 'sen' ? 'badge-senate' : 'badge-house';
+                const districtValue = row.roleType === 'rep' ? row.district : '-';
+                const websiteHref = formatPublicUrl(row.website);
+                const contactHref = formatPublicUrl(row.contactForm);
+                const websiteLink = websiteHref
+                    ? `<a href="${websiteHref}" target="_blank" rel="noopener noreferrer">Website</a>`
+                    : '<span class="muted-link">Website unavailable</span>';
+                const contactLink = contactHref
+                    ? `<a href="${contactHref}" target="_blank" rel="noopener noreferrer">Contact Form</a>`
+                    : '<span class="muted-link">Contact form unavailable</span>';
+
+                return `<article class="rep-card">
+                    <header class="rep-card-header">
+                        <h4>${escapeHtml(row.name)}</h4>
+                        <span class="chamber-badge ${chamberClass}">${row.chamber}</span>
+                    </header>
+                    <div class="rep-meta">${row.state}${row.roleType === 'rep' ? `-${districtValue}` : ''} • ${escapeHtml(row.party)}</div>
+                    <div class="rep-card-grid">
+                        <div><span class="meta-label">District</span><span>${districtValue}</span></div>
+                        <div><span class="meta-label">Office</span><span>${escapeHtml(row.office)}</span></div>
+                        <div><span class="meta-label">Phone</span><span>${escapeHtml(row.phone)}</span></div>
+                    </div>
+                    <div class="rep-actions">
+                        ${websiteLink}
+                        ${contactLink}
+                    </div>
+                </article>`;
             }).join('');
 
             const senateCount = rows.filter(row => row.chamber === 'Senate').length;
@@ -304,7 +358,8 @@ function initTakeAction() {
             const filteredRows = directoryData.filter(row => {
                 const queryMatch = query.length === 0
                     || row.name.toLowerCase().includes(query)
-                    || row.party.toLowerCase().includes(query);
+                    || row.party.toLowerCase().includes(query)
+                    || row.state.toLowerCase().includes(query);
                 const chamberMatch = chamber === 'all' || row.roleType === chamber;
                 const stateMatch = state === 'all' || row.state === state;
                 return queryMatch && chamberMatch && stateMatch;
@@ -331,14 +386,17 @@ function initTakeAction() {
                 state: currentRole.state || '-',
                 district: districtValue,
                 party: currentRole.party || 'Unknown',
-                phone: currentRole.phone || 'Not listed'
+                office: currentRole.office || 'Office not listed',
+                phone: currentRole.phone || 'Not listed',
+                website: currentRole.url || '',
+                contactForm: currentRole.contact_form || ''
             };
         };
 
         const loadNationalDirectory = async () => {
             directoryStatus.textContent = 'Loading national congressional roster...';
             directorySummary.textContent = '';
-            directoryBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+            directoryCards.innerHTML = '<div class="directory-empty">Loading...</div>';
 
             try {
                 const response = await fetch('https://unitedstates.github.io/congress-legislators/legislators-current.json', { cache: 'no-store' });
@@ -356,9 +414,10 @@ function initTakeAction() {
                 applyFilters();
                 directoryStatus.textContent = `Loaded ${directoryData.length} members from the national Congress dataset.`;
             } catch (_error) {
-                directoryBody.innerHTML = '<tr><td colspan="6">Unable to load live directory data right now.</td></tr>';
+                directoryCards.innerHTML = '<div class="directory-empty">Unable to load live directory data right now.</div>';
                 directoryStatus.textContent = 'National directory failed to load. Try Refresh Data in a moment.';
                 directorySummary.textContent = '';
+                updateStats([]);
             }
         };
 
@@ -426,6 +485,14 @@ function escapeHtml(value) {
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#39;');
+}
+
+function formatPublicUrl(value) {
+    if (!value) return '';
+    const trimmed = String(value).trim();
+    if (!trimmed) return '';
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('mailto:')) return trimmed;
+    return `https://${trimmed}`;
 }
 
 function hexToRgba(hex, alpha) {
