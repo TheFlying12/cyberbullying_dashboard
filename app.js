@@ -252,7 +252,6 @@ function initTakeAction() {
     const senderName = document.getElementById('sender-name');
     const senderCity = document.getElementById('sender-city');
     const senderState = document.getElementById('sender-state');
-    const policyPriority = document.getElementById('policy-priority');
     const templateBox = document.getElementById('email-template');
     const generateTemplateBtn = document.getElementById('generate-template-btn');
     const copyTemplateBtn = document.getElementById('copy-template-btn');
@@ -374,17 +373,33 @@ function initTakeAction() {
     if (!templateBox || !generateTemplateBtn || !copyTemplateBtn || !copyStatus) return;
 
     const renderTemplate = () => {
-        const name = senderName?.value.trim() || '[Your Full Name]';
-        const city = senderCity?.value.trim() || '[City]';
-        const state = senderState?.value.trim().toUpperCase() || '[State]';
-        const ask = policyPriority?.value.trim() || 'fund evidence-based school cyberbullying prevention programs';
-        const date = new Date().toLocaleDateString('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric'
-        });
+        const name = senderName?.value.trim() || '[Your Name]';
+        const city = senderCity?.value.trim() || '_______';
+        const state = senderState?.value.trim().toUpperCase();
+        const location = state ? `${city}, ${state}` : city;
 
-        templateBox.value = `Subject: Protect Children from Cyberbullying\n\n${date}\n\nDear [Representative/Senator Last Name],\n\nMy name is ${name}, and I am a constituent from ${city}, ${state}. I am writing to ask you to prioritize legislation and funding that will ${ask}.\n\nRecent national data shows this issue is urgent. In 2023, 16% of U.S. high school students reported being electronically bullied, and 19% reported being bullied at school (CDC YRBS).\n\nI respectfully ask your office to:\n1. Support dedicated funding for school-based cyberbullying prevention and counseling.\n2. Require clear reporting and response standards so families know incidents are addressed quickly.\n3. Encourage digital safety education that includes bystander intervention and responsible platform use.\n\nPlease let me know what actions you will take on this issue. Thank you for your service to our community.\n\nSincerely,\n${name}\n${city}, ${state}`;
+        templateBox.value = `My name is ${name} and I live in ${location}.
+
+I hope this letter finds you well. I am writing to urge you to support stronger protections for children and teenagers online, particularly on social media.
+
+The U.S. Surgeon General has warned that social media poses a serious risk to youth mental health. I want children in my community to grow up safe and healthy, without being targeted by addictive platform designs that prioritize profit over well-being. Too many young people are experiencing anxiety, depression, cyberbullying, and sleep disruption as a result of algorithm-driven “infinite scroll” feeds.
+
+For this reason, I urge you to support legislation like the SAFE for Kids Act and related children’s online safety measures, including:
+
+Limiting addictive, algorithm-driven feeds for users under 18 without parental consent
+
+Requiring age verification and parental approval for these features
+
+Restricting late-night notifications between 12:00 a.m. and 6:00 a.m.
+
+Protecting children’s privacy by limiting the collection and use of their personal data
+
+By taking these steps, we can help create a safer digital environment for families and put children’s health and privacy first.
+
+Thank you for your time and consideration. I appreciate your leadership on this important issue.
+
+Sincerely,
+${name}`;
     };
 
     generateTemplateBtn.addEventListener('click', () => {
